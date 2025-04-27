@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learnity AI - AR Component Visualization</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #3a86ff;
+            --secondary: #8338ec;
+            --dark: #1a1a2e;
+            --light: #ffffff;
+            --gray: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--gray) 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-left: 0.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        #hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 3rem 0;
+            padding-top: 2rem;
+        }
+        
+        .hero-content {
+            max-width: 550px;
+        }
+        
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-content p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(123, 97, 255, 0.2);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(123, 97, 255, 0.4);
+        }
+        
+        .download-btn i {
+            margin-left: 0.5rem;
+        }
+        
+        .hero-image {
+            width: 45%;
+            position: relative;
+        }
+        
+        .hero-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        #components {
+            padding: 3rem 0;
+            scroll-margin-top: 100px;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 3rem;
+            color: var(--dark);
+        }
+        
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .card-container {
+            perspective: 1000px;
+            height: 350px;
+        }
+        
+        .card {
+            position: relative;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .card-face {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .card-front {
+            background-color: white;
+        }
+        
+        .card-back {
+            background-color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .component-img {
+            width: 100%;
+            height: 70%;
+            object-fit: contain;
+            padding: 1rem;
+        }
+        
+        .card-content {
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.05), transparent);
+            text-align: center;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .card-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .scan-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.3rem 0.7rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .pulse {
+            height: 10px;
+            width: 10px;
+            background-color: #ff5252;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.8);
+                opacity: 0.8;
+            }
+        }
+        
+        #features {
+            padding: 4rem 0;
+            background-color: white;
+            border-radius: 20px;
+            margin: 2rem 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            scroll-margin-top: 100px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+        
+        .feature-card {
+            background-color: var(--gray);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .feature-desc {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        #cta {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            color: white;
+            margin: 4rem 0;
+            scroll-margin-top: 100px;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .cta-desc {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            margin-bottom: 2rem;
+        }
+        
+        .cta-btn {
+            background-color: white;
+            color: var(--primary);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: inline-block;
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        #about {
+            scroll-margin-top: 100px;
+        }
+        
+        #contact {
+            scroll-margin-top: 100px;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0;
+            border-radius: 20px 20px 0 0;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .footer-logo {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-logo h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-logo p {
+            font-size: 0.95rem;
+            color: #ccc;
+            max-width: 300px;
+        }
+        
+        .footer-links {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .footer-links h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark);
+            cursor: pointer;
+        }
+        
+        @media (max-width: 900px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .hero-content, .hero-image {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .hero-image {
+                margin-top: 2rem;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                border-radius: 0 0 15px 15px;
+                text-align: center;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-cube"></i>
+                <span>Learnity AI</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="#hero">Home</a>
+                <a href="#components">Components</a>
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+        
+        <section id="hero">
+            <div class="hero-content">
+                <h1>Learn Industrial Components with AR Technology</h1>
+                <p>Explore and understand pneumatic and automation components through our innovative augmented reality application. Scan components to visualize their inner workings, specifications, and technical details.</p>
+                <a href="https://drive.google.com/drive/folders/1jfjLlteqpqph_IxPSUU9frqN9jkBG7v0?usp=sharing" class="download-btn">
+                    Download App <i class="fas fa-download"></i>
+                </a>
+            </div>
+            <div class="hero-image">
+                <img src="./source/icon aplikasi.png" alt="AR Application Demo">
+            </div>
+        </section>
+        
+        <section id="components">
+            <h2 class="section-title">Scannable Components</h2>
+            <p style="text-align: center; margin-bottom: 2rem; color: #666;">Click on the cards to view technical diagrams</p>
+            
+            <div class="components-grid">
+                <!-- Component 1 -->
+                <div class="card-container">
+                    <div class="card">
+                        <div class="card-face card-front">
+                            <div class="scan-indicator">
+                                <span class="pulse"></span> AR Scannable
+                            </div>
+                            <img src="./source/AirServiceUnit_scaled.jpg" alt="Air Service Unit" class="component-img">
+                            <div class="card-content">
+                                <h3 class="card-title">Air Service Unit</h3>
+                                <p class="card-desc">Pressure regulation and filtration</p>
+                            </div>
+                        </div>
+                        <div class="card-face card-back">
+                            <img src="./source/AirServiceUnit_scaled.jpg" alt="Air Service Unit Technical Drawing" class="component-img">
+                            <div class="card-content">
+                                <h3 class="card-title">Technical Details</h3>
+                                <p class="card-desc">Technical drawing of the Air Service Unit</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Component 2 -->
+                <div class="card-container">
+                    <div class="card">
+                        <div class="card-face card-front">
+                            <div class="scan-indicator">
+                                <span class="pulse"></span> AR Scannable
+                            </div>
+                            <img src="./source/CableClip_scaled.jpg" alt="Cable Clip" class="component-img">
+                            <div class="card-content">
+                                <h3 class="card-title">Cable Clip</h3>
+                                <p class="card-desc">Secure mounting for cables and tubing</p>
+                            </div>
+                        </div>
+                        <div class="card-face card-back">
+                            <img src="./source/CableClip_scaled.jpg" alt="Cable Clip Technical Drawing" class="component-img">
+                            <div class="card-content">
+                                <h3 class="card-title">Technical Details</h3>
+                                <p class="card-desc">Technical drawing of the Cable Clip</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Component 3 -->
+                <div class="card-container">
+                    <div class="card">
+                        <div class="card-face card-front">
+                            <div class="scan-indicator">
+                                <span class="pulse"></span> AR Scannable
+                            </div>
+                            <img src="./source/DistributingStation_scaled.jpg" alt="Distributing Station" class="component-img">
+                            <div class="card-content">
+                                <h3 class="card-title">Distributing Station</h3>
+                                <p class="card-desc">Modular automation system</p>
+                            </div>
+                        </div>
+                        <div class="card-face card-back">
+                            <img src="./source/DistributingStation_scaled.jpg" alt="Distributing Station Technical Drawing" class="component-img">
+                            <div class="card-content">
+                                <h3 class="card-title">Technical Details</h3>
+                                <p class="card-desc">Technical drawing of the Distributing Station</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Component 4 -->
+                <div class="card-container">
+                    <div class="card">
+                        <div class="card-face card-front">
+                            <div class="scan-indicator">
+                                <span class="pulse"></span> AR Scannable
+                            </div>
+                            <img src="./source/StackMagazineModule_scaled.jpg" alt="Stack Magazine Module" class="component-img">
+                            <div class="card-content">
+                                <h3 class="card-title">Stack Magazine Module</h3>
+                                <p class="card-desc">Component storage and feeding system</p>
+                            </div>
+                        </div>
+                        <div class="card-face card-back">
+                            <img src="./source/StackMagazineModule_scaled.jpg" alt="Stack Magazine Module Technical Drawing" class="component-img">
+                            <div class="card-content">
+                                <h3 class="card-title">Technical Details</h3>
+                                <p class="card-desc">Technical drawing of the Stack Magazine Module</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="features">
+            <h2 class="section-title">Why Use Learnity AI?</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-vr-cardboard"></i>
+                    </div>
+                    <h3 class="feature-title">Augmented Reality</h3>
+                    <p class="feature-desc">Visualize components in 3D space to better understand their structure and function.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3 class="feature-title">Interactive Learning</h3>
+                    <p class="feature-desc">Learn through interactive experiences that make complex components easy to understand.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3 class="feature-title">Technical Details</h3>
+                    <p class="feature-desc">Access comprehensive technical information about each component with a simple scan.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="cta">
+            <h2 class="cta-title">Ready to Experience AR Learning?</h2>
+            <p class="cta-desc">Download our application now and start exploring industrial components in augmented reality. Perfect for students, engineers, and industry professionals.</p>
+            <a href="https://drive.google.com/drive/folders/1jfjLlteqpqph_IxPSUU9frqN9jkBG7v0?usp=sharing" class="cta-btn">Download App</a>
+        </section>
+        
+        <section id="about">
+            <h2 class="section-title">About Learnity AI</h2>
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                <p style="margin-bottom: 1.5rem; color: #555; line-height: 1.6;">
+                    Learnity AI is an innovative educational platform that combines augmented reality technology with industrial component learning. 
+                    Our mission is to make technical education more accessible, interactive, and engaging for students and professionals alike.
+                </p>
+                <p style="color: #555; line-height: 1.6;">
+                    By leveraging the power of AR technology, we bring industrial components to life, allowing users to explore their inner workings, 
+                    understand their functions, and learn technical specifications in an immersive environment.
+                </p>
+            </div>
+        </section>
+        
+        <section id="contact">
+            <h2 class="section-title">Contact Us</h2>
+            <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                <p style="margin-bottom: 2rem; color: #555;">
+                    Have questions or suggestions? We'd love to hear from you!
+                </p>
+                <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <p style="margin-bottom: 1rem;"><strong>Email:</strong> Daunn871@gmail.com</p>
+                    <p style="margin-bottom: 1rem;"><strong>Phone:</strong> 089521914717</p>
+                    <p><strong>Address:</strong> Sragen</p>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Learnity AI</h3>
+                    <p>Innovative learning through augmented reality, making complex industrial components easy to understand.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#components">Components</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#about">About Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#contact">Contact Us</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 Learnity AI. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Card flip functionality
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('flipped');
+            });
+        });
+        
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+        
+        // Close mobile menu when a link is clicked
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
